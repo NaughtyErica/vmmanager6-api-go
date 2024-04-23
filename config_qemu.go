@@ -10,6 +10,11 @@ type ConfigDisk struct {
 	Size		int	    `json:"disk_mib"`
 	Id		int	    `json:"id"`
 }
+type ConfigSecondaryDisk struct {
+	Size		int	    	`json:"size_mib"`
+	BootOrder	int	    	`json:"boot_order"`
+	Tags		[]int		`json:"tags"`
+}
 type ClusterConfig struct {
 	Id		int	    `json:"id"`
 	DatacenterType  string	    `json:"datacenter_type"`
@@ -73,6 +78,7 @@ type ConfigNewQemu struct {
 	QemuCores       int         	`json:"cpu_number"`
 	Memory          int         	`json:"ram_mib"`
 	QemuDisks       int	    		`json:"hdd_mib"`
+	QemuSecondaryDisks []ConfigSecondaryDisk `json:"disks"`
 	Cluster			int	    		`json:"cluster"`
 	Account			int	    		`json:"account"`
 	Node			int				`json:"node"`

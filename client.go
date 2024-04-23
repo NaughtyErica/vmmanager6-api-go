@@ -112,6 +112,9 @@ func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
 	if config["node"].(float64) == 0 {
 		delete(config, "node")
 	}
+	if len(config["disks"].([]interface{})) > 0 {
+		delete(config, "disk")
+	}
 	if config["preset"].(float64) > 0 {
 		delete(config, "cpu_number")
 		delete(config, "ram_mib")
@@ -150,7 +153,7 @@ func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
 	if config["vxlan"] == nil || len(config["vxlan"].([]interface{})) == 0 {
 		delete(config, "vxlan")
 	}
-	
+
         _, err = c.session.PostJSON("/vm/v3/host", nil, nil, &config, &data)
         if err != nil {
                 return 0, err
