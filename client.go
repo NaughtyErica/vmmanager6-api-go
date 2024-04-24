@@ -112,9 +112,9 @@ func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
 	if config["node"].(float64) == 0 {
 		delete(config, "node")
 	}
-	// if len(config["disks"].([]interface{})) > 0 {
-	// 	delete(config, "disk")
-	// }
+	if len(config["disks"].([]interface{})) > 0 {
+		delete(config, "disk")
+	}
 	if config["preset"].(float64) > 0 {
 		delete(config, "cpu_number")
 		delete(config, "ram_mib")
