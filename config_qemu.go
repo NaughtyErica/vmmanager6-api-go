@@ -54,7 +54,7 @@ type ConfigQemu struct {
 	Description     string      `json:"comment"`
 	QemuCores       int         `json:"cpu_number"`
 	Memory          int         `json:"ram_mib"`
-	QemuDisks       ConfigDisk  `json:"disk"`
+	QemuDisks       []ConfigDisk  `json:"disks"`
 	Cluster		ClusterConfig	`json:"cluster"`
 	Node		NodeConfig		`json:"node"`
 	Account		AccountConfig	`json:"account"`
@@ -132,7 +132,7 @@ func (config ResourcesQemu) UpdateResources(vmr *VmRef, client *Client) (err err
 	return
 }
 
-func (config ConfigDisk) UpdateDisk(client *Client) (err error) {
+func (config []ConfigDisk) UpdateDisk(client *Client) (err error) {
 	err = client.UpdateQemuDisk(config)
 	if err != nil {
                 return fmt.Errorf("error updating disk of VM: %v (params: %v)", err, config)

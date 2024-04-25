@@ -25,7 +25,7 @@ type ConfigVxLAN struct {
 	Account     ConfigAccount   `json:"account"`
 	Comment     string 			`json:"comment"`
 	Ips 		[]VxLANipnets   `json:"ipnets"`
-	Ippool		int 			`json:"ippool"` 			
+	Ippool		int 			`json:"ippool"`
 }
 
 func (config ConfigNewVxLAN) CreateVxLAN(client *Client) (vmid string, err error) {

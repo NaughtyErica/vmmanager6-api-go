@@ -150,7 +150,7 @@ func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
 	if config["vxlan"] == nil || len(config["vxlan"].([]interface{})) == 0 {
 		delete(config, "vxlan")
 	}
-	
+
         _, err = c.session.PostJSON("/vm/v3/host", nil, nil, &config, &data)
         if err != nil {
                 return 0, err
@@ -206,8 +206,38 @@ func (c *Client) UpdateQemuResources(vmr *VmRef, config ResourcesQemu) (err erro
         err = c.WaitForCompletion(data)
         return
 }
+// AddMultipleDisks to a VM
+func (c *Client) AddMultipleDisks(vmr *VmRef, config []ConfigDisk) (diskIds []int, err error) {
+	var data map[string]interface{}
+
+	diskIds = make([]int, len(config))
+
+	for i, diskParam := range config {
+		configJson, _ := json.Marshal(diskParam)
+		err = json.Unmarshal(configJson, &config)
+
+		if err != nil {
+			return nil, err
+		}
+
+		postUrl := fmt.Sprintf("/vm/v3/disk/%d", vmr.vmId)
+		_, err = c.session.PostJSON(postUrl, nil, nil, &config, &data)
+		if err != nil || data == nil {
+			return nil, fmt.Errorf("Can't create Disk with params %v", config)
+		}
+
+		err = c.WaitForCompletion(data)
+		if err != nil {
+			return nil, err
+		}
+
+		diskIds[i] = int(data["id"].(float64))
+	}
+
+	return diskIds, nil
+}
 // Change VM's disk size
-func (c *Client) UpdateQemuDisk(config ConfigDisk) (err error) {
+func (c *Client) UpdateQemuDisk(config []ConfigDisk) (err error) {
 	url := fmt.Sprintf("/vm/v3/disk/%d", config.Id)
         var data map[string]interface{}
 	size := map[string]int{ "size_mib": config.Size }
@@ -592,7 +622,7 @@ func (c *Client) AccountAddSshKey(id string, key SshKeyConfig) (err error) {
         _, err = c.session.PostJSON(url, nil, nil, &config, nil)
 	return
 }
-// Get set of ssh public keys from account 
+// Get set of ssh public keys from account
 func (c *Client) AccountGetSshKeys(id string) (ssh_keys []interface{}, err error) {
 	var data map[string]interface{}
 	url := fmt.Sprintf("/auth/v3/user/%v/sshkey", id)
