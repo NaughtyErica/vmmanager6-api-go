@@ -7,8 +7,8 @@ import (
 )
 
 type ConfigDisk struct {
-	Size		int	    `json:"disk_mib"`
-	Id		int	    `json:"id"`
+	Size		[]int	    `json:"disk_mib"`
+	Id		[]int	    `json:"id"`
 }
 type ClusterConfig struct {
 	Id		int	    `json:"id"`
