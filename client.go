@@ -117,7 +117,7 @@ func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
 				// Check if "size_mib" key exists and is 0.
 				if size, ok := d["size_mib"].(int); ok && size == 0 {
 					// If "size_mib" is 0, remove the "disks" key from the config
-					delete(config, "disks")
+					delete(config, "disk")
 					break
 				}
 			}
