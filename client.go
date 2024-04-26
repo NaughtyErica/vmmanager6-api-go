@@ -104,17 +104,31 @@ func (c *Client) GetVmState(vmr *VmRef) (vmState string, err error) {
 }
 // Create Qemu VM
 func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
-        var data map[string]interface{}
-	var config map[string]interface{}
-        config_json, _ := json.Marshal(vmParams)
-        err = json.Unmarshal(config_json, &config)
+		var data map[string]interface{}
+		var config map[string]interface{}
+		config_json, _ := json.Marshal(vmParams)
+		err = json.Unmarshal(config_json, &config)
 	log.Printf(">>> JSON %#v", config)
+	// Check if "disks" key exists.
+	if disks, ok := config["disks"].([]interface{}); ok {
+		// Iterate over each disk in the "disks" array.
+		for _, disk := range disks {
+			if d, ok := disk.(map[string]interface{}); ok {
+				// Check if "size_mib" key exists and is 0.
+				if size, ok := d["size_mib"].(int); ok && size == 0 {
+					// If "size_mib" is 0, remove the "disks" key from the config
+					delete(config, "disks")
+					break
+				}
+			}
+		}
+	}
 	if config["node"].(float64) == 0 {
 		delete(config, "node")
 	}
-	// if len(config["disks"].([]interface{})) > 0 {
-	// 	delete(config, "disk")
-	// }
+	if len(config["disks"].([]interface{})) > 0 {
+		delete(config, "disk")
+	}
 	if config["preset"].(float64) > 0 {
 		delete(config, "cpu_number")
 		delete(config, "ram_mib")
@@ -165,6 +179,22 @@ func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
 	vmid = int(data["id"].(float64))
         return
 }
+// func dropDisksKeyOnZeroSize(config map[string]interface{}) {
+//     // Check if "disks" key exists.
+//     if disks, ok := config["disks"].([]interface{}); ok {
+//         // Iterate over each disk in the "disks" array.
+//         for _, disk := range disks {
+//             if d, ok := disk.(map[string]interface{}); ok {
+//                 // Check if "size_mib" key exists and is 0.
+//                 if size, ok := d["size_mib"].(int); ok && size == 0 {
+//                     // If "size_mib" is 0, remove the "disks" key from the config
+//                     delete(config, "disks")
+//                     break
+//                 }
+//             }
+//         }
+//     }
+// }
 // Delete Qemu VM
 func (c *Client) DeleteQemuVm(vmr *VmRef) (err error) {
 	url := fmt.Sprintf("/vm/v3/host/%d", vmr.vmId)
@@ -417,7 +447,7 @@ func (c *Client) CreateAccount(config ConfigNewAccount) (vmid string, err error)
 		return "", fmt.Errorf("Can't create Account with params %v", config)
 	}
 	vmid = fmt.Sprint(data["id"].(float64))
-	
+
         return
 }
 // Update setting for pool
