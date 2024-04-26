@@ -73,8 +73,8 @@ func (c *Client) DeleteUrl(url string) (err error) {
 }
 // Create VM ref object from id
 func NewVmRef(vmId int) (vmr *VmRef) {
-        vmr = &VmRef{vmId: vmId}
-        return
+		vmr = &VmRef{vmId: vmId}
+		return
 }
 // Get VM info
 func (c *Client) GetVmInfo(vmr *VmRef) (vmInfo map[string]interface{}, err error) {
@@ -93,21 +93,21 @@ func (c *Client) GetVmInfo(vmr *VmRef) (vmInfo map[string]interface{}, err error
 // Get state of VM
 func (c *Client) GetVmState(vmr *VmRef) (vmState string, err error) {
 	vm, err := c.GetVmInfo(vmr)
-        if err != nil {
-                return "", err
-        }
-        if vm["state"] == nil {
-		return "", fmt.Errorf("vm STATE not readable")
-        }
-        vmState = vm["state"].(string)
-        return
+		if err != nil {
+			return "", err
+		}
+		if vm["state"] == nil {
+			return "", fmt.Errorf("vm STATE not readable")
+		}
+		vmState = vm["state"].(string)
+		return
 }
 // Create Qemu VM
 func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
-        var data map[string]interface{}
+	var data map[string]interface{}
 	var config map[string]interface{}
-        config_json, _ := json.Marshal(vmParams)
-        err = json.Unmarshal(config_json, &config)
+	config_json, _ := json.Marshal(vmParams)
+	err = json.Unmarshal(config_json, &config)
 	log.Printf(">>> JSON %#v", config)
 	if config["node"].(float64) == 0 {
 		delete(config, "node")
@@ -120,7 +120,7 @@ func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
 	}else{
 		delete(config, "preset")
 	}
-    if config["ipv4_number"].(float64) == 0 {
+	if config["ipv4_number"].(float64) == 0 {
 		delete(config, "ipv4_number")
 	}
 	if config["ipv4_pool"] == nil {
@@ -150,185 +150,185 @@ func (c *Client) CreateQemuVm(vmParams ConfigNewQemu) (vmid int, err error) {
 	if config["vxlan"] == nil || len(config["vxlan"].([]interface{})) == 0 {
 		delete(config, "vxlan")
 	}
-	
-        _, err = c.session.PostJSON("/vm/v3/host", nil, nil, &config, &data)
-        if err != nil {
-                return 0, err
-        }
+
+		_, err = c.session.PostJSON("/vm/v3/host", nil, nil, &config, &data)
+		if err != nil {
+			return 0, err
+		}
 	if data == nil {
 		return 0, fmt.Errorf("Can't create VM with params %v", vmParams)
 	}
-        err = c.WaitForCompletion(data)
+	err = c.WaitForCompletion(data)
 	vmid = int(data["id"].(float64))
-        return
+		return
 }
 // Delete Qemu VM
 func (c *Client) DeleteQemuVm(vmr *VmRef) (err error) {
 	url := fmt.Sprintf("/vm/v3/host/%d", vmr.vmId)
-        var data map[string]interface{}
+		var data map[string]interface{}
 
-        _, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't delete VM %v", vmr.vmId)
 	}
-        err = c.WaitForCompletion(data)
-        return
+		err = c.WaitForCompletion(data)
+		return
 }
 // Delete VMmanager's network
 func (c *Client) DeleteNetwork(id string) (err error) {
 	url := fmt.Sprintf("/ip/v3/ipnet/%s", id)
-        var data map[string]interface{}
+		var data map[string]interface{}
 
-        _, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't delete network %v", id)
 	}
-        return
+		return
 }
 // Update VM's resources
 func (c *Client) UpdateQemuResources(vmr *VmRef, config ResourcesQemu) (err error) {
 	url := fmt.Sprintf("/vm/v3/host/%d/resource", vmr.vmId)
-        var data map[string]interface{}
+		var data map[string]interface{}
 
-        _, err = c.session.PostJSON(url, nil, nil, &config, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.PostJSON(url, nil, nil, &config, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't update VM %v resources", vmr.vmId)
 	}
-        err = c.WaitForCompletion(data)
-        return
+		err = c.WaitForCompletion(data)
+		return
 }
 // Change VM's disk size
 func (c *Client) UpdateQemuDisk(config ConfigDisk) (err error) {
 	url := fmt.Sprintf("/vm/v3/disk/%d", config.Id)
-        var data map[string]interface{}
+		var data map[string]interface{}
 	size := map[string]int{ "size_mib": config.Size }
-        _, err = c.session.PostJSON(url, nil, nil, &size, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.PostJSON(url, nil, nil, &size, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't update DISK %v size", config.Id)
 	}
-        err = c.WaitForCompletion(data)
-        return
+		err = c.WaitForCompletion(data)
+		return
 }
 // Update configuration of VM
 func (c *Client) UpdateQemuConfig(vmr *VmRef, config UpdateConfigQemu) (err error) {
 	url := fmt.Sprintf("/vm/v3/host/%d", vmr.vmId)
-        var data map[string]interface{}
+		var data map[string]interface{}
 
-        _, err = c.session.PostJSON(url, nil, nil, &config, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.PostJSON(url, nil, nil, &config, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't update VM %v config", vmr.vmId)
 	}
-        return
+		return
 }
 // Reinstall VM to new OS
 func (c *Client) ReinstallQemu(vmr *VmRef, config ReinstallOS) (err error) {
 	url := fmt.Sprintf("/vm/v3/host/%d/reinstall", vmr.vmId)
-        var data map[string]interface{}
+		var data map[string]interface{}
 
-        _, err = c.session.PostJSON(url, nil, nil, &config, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.PostJSON(url, nil, nil, &config, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't reinstall VM %v", vmr.vmId)
 	}
-        err = c.WaitForCompletion(data)
-        return
+		err = c.WaitForCompletion(data)
+		return
 }
 // Change password of VM
 func (c *Client) ChangePassword(vmr *VmRef, password string) (err error) {
 	url := fmt.Sprintf("/vm/v3/host/%d/password", vmr.vmId)
-        var data map[string]interface{}
+		var data map[string]interface{}
 	config := map[string]string{"password": password}
 
-        _, err = c.session.PostJSON(url, nil, nil, &config, &data)
-        if err != nil {
-                return
+		_, err = c.session.PostJSON(url, nil, nil, &config, &data)
+		if err != nil {
+			return
         }
 	if data == nil {
 		return fmt.Errorf("Can't change VM %v password", vmr.vmId)
 	}
-        err = c.WaitForCompletion(data)
-        return
+		err = c.WaitForCompletion(data)
+		return
 }
 // Change owner of VM
 func (c *Client) ChangeOwner(vmr *VmRef, owner int) (err error) {
 	url := fmt.Sprintf("/vm/v3/host/%d/account", vmr.vmId)
-        var data map[string]interface{}
+		var data map[string]interface{}
 	config := map[string]int{"account": owner}
-        _, err = c.session.PostJSON(url, nil, nil, &config, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.PostJSON(url, nil, nil, &config, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't change VM %v owner", vmr.vmId)
 	}
-        err = c.WaitForCompletion(data)
-        return
+		err = c.WaitForCompletion(data)
+		return
 }
 // Get exit status for task in VMmanager
 func (c *Client) GetTaskExitstatus(taskUpid int) (exitStatus string, err error) {
-        url := fmt.Sprintf("/vm/v3/task?where=consul_id+EQ+%v", taskUpid)
-        var data map[string]interface{}
-        _, err = c.session.GetJSON(url, nil, nil, &data)
-        if err == nil {
+		url := fmt.Sprintf("/vm/v3/task?where=consul_id+EQ+%v", taskUpid)
+		var data map[string]interface{}
+		_, err = c.session.GetJSON(url, nil, nil, &data)
+		if err == nil {
 		tasks := data["list"].([]interface{})
 		task := tasks[0].(map[string]interface{})
-                exitStatus = task["status"].(string)
-        }
-        if exitStatus != exitStatusSuccess {
-                err = fmt.Errorf(exitStatus)
-        }
-        return
+			exitStatus = task["status"].(string)
+		}
+		if exitStatus != exitStatusSuccess {
+			err = fmt.Errorf(exitStatus)
+		}
+		return
 }
 // WaitForCompletion - poll the API for task completion
 func (c *Client) WaitForCompletion(taskResponse map[string]interface{}) (err error) {
-        if taskResponse["error"] != nil {
-                errJSON, _ := json.MarshalIndent(taskResponse["error"], "", "  ")
+		if taskResponse["error"] != nil {
+			errJSON, _ := json.MarshalIndent(taskResponse["error"], "", "  ")
 		return fmt.Errorf("error reponse: %v", string(errJSON))
-        }
-        if taskResponse["task"] == nil {
-                return nil
-        }
-        waited := 0
-        taskUpid := int(taskResponse["task"].(float64))
-        for waited < c.TaskTimeout {
-                _, statErr := c.GetTaskExitstatus(taskUpid)
-                if statErr == nil {
-                        return nil
-                }
-                time.Sleep(TaskStatusCheckInterval * time.Second)
-                waited = waited + TaskStatusCheckInterval
-        }
-        return fmt.Errorf("Wait timeout for: %v", taskUpid)
+		}
+		if taskResponse["task"] == nil {
+			return nil
+		}
+		waited := 0
+		taskUpid := int(taskResponse["task"].(float64))
+		for waited < c.TaskTimeout {
+			_, statErr := c.GetTaskExitstatus(taskUpid)
+			if statErr == nil {
+				return nil
+			}
+			time.Sleep(TaskStatusCheckInterval * time.Second)
+			waited = waited + TaskStatusCheckInterval
+		}
+		return fmt.Errorf("Wait timeout for: %v", taskUpid)
 }
 // Create new network in VMmanager
 func (c *Client) CreateNetwork(netParams ConfigNewNetwork) (vmid string, err error) {
-        var data map[string]interface{}
-        _, err = c.session.PostJSON("/vm/v3/userspace/public/ipnet", nil, nil, &netParams, &data)
-        if err != nil {
-                return "", err
-        }
+		var data map[string]interface{}
+		_, err = c.session.PostJSON("/vm/v3/userspace/public/ipnet", nil, nil, &netParams, &data)
+		if err != nil {
+			return "", err
+		}
 	if data == nil {
 		return "", fmt.Errorf("Can't create network with params %v", netParams)
 	}
 	vmid = fmt.Sprint(data["id"].(float64))
-        return
+		return
 }
 // Get information abount network
 func (c *Client) GetNetworkInfo(id string) (netInfo map[string]interface{}, err error) {
@@ -342,7 +342,7 @@ func (c *Client) GetNetworkInfo(id string) (netInfo map[string]interface{}, err 
 	}
 	nets := netlist["list"].([]interface{})
 	netInfo = nets[0].(map[string]interface{})
-        return
+		return
 }
 // Get IP array for VM
 func (c *Client) GetVmIpsInfo(vmr *VmRef) (ips []interface{}, err error) {
@@ -355,28 +355,28 @@ func (c *Client) GetVmIpsInfo(vmr *VmRef) (ips []interface{}, err error) {
 		return nil, fmt.Errorf("can't find ips for vm %v", vmr.vmId)
 	}
 	ips = iplist["list"].([]interface{})
-        return
+		return
 }
 // Update PTR domain record for given IP's id
 func (c *Client) UpdatePtr(id int, domain string) (err error) {
 	params := map[string]string {
 		"domain": domain,
 	}
-        _, err = c.session.PostJSON(fmt.Sprintf("/vm/v3/ip/%d/ptr", id), nil, nil, &params, nil)
+		_, err = c.session.PostJSON(fmt.Sprintf("/vm/v3/ip/%d/ptr", id), nil, nil, &params, nil)
 	return
 }
 // Create pool of IPs in VMmanager
 func (c *Client) CreatePool(config ConfigNewPool) (vmid string, err error) {
-        var data map[string]interface{}
+	var data map[string]interface{}
 	// 1. Create pool
 	poolParams := map[string]string{
 		"name": config.Name,
 		"note": config.Note,
-        }
-        _, err = c.session.PostJSON("/ip/v3/userspace/public/ippool", nil, nil, &poolParams, &data)
-        if err != nil {
-                return "", err
-        }
+		}
+		_, err = c.session.PostJSON("/ip/v3/userspace/public/ippool", nil, nil, &poolParams, &data)
+		if err != nil {
+			return "", err
+		}
 	if data == nil {
 		return "", fmt.Errorf("Can't create Pool with params %v", poolParams)
 	}
@@ -385,8 +385,8 @@ func (c *Client) CreatePool(config ConfigNewPool) (vmid string, err error) {
 	for _, Range := range config.Ranges {
 		err = c.CreatePoolRange(vmid, Range)
 		if err != nil {
-	                return "", err
-	        }
+			return "", err
+		}
 	}
 	// 3. Apply pool to cluster
 	poolCluster := map[string][]map[string]int{
@@ -397,25 +397,25 @@ func (c *Client) CreatePool(config ConfigNewPool) (vmid string, err error) {
 		},
 	},
 	}
-        _, err = c.session.PostJSON(fmt.Sprintf("/vm/v3/ippool/%s/cluster", vmid), nil, nil, &poolCluster, nil)
-        if err != nil {
-                return "", err
-        }
-        return
+		_, err = c.session.PostJSON(fmt.Sprintf("/vm/v3/ippool/%s/cluster", vmid), nil, nil, &poolCluster, nil)
+		if err != nil {
+			return "", err
+		}
+		return
 }
 // Create account in VMmanager
 func (c *Client) CreateAccount(config ConfigNewAccount) (vmid string, err error) {
-        var data map[string]interface{}
-        _, err = c.session.PostJSON("/vm/v3/account", nil, nil, &config, &data)
-        if err != nil {
-                return "", err
-        }
+		var data map[string]interface{}
+		_, err = c.session.PostJSON("/vm/v3/account", nil, nil, &config, &data)
+		if err != nil {
+			return "", err
+		}
 	if data == nil {
 		return "", fmt.Errorf("Can't create Account with params %v", config)
 	}
 	vmid = fmt.Sprint(data["id"].(float64))
-	
-        return
+
+		return
 }
 // Update setting for pool
 func (c *Client) UpdatePoolSettings(poolId string, name string, desc string) (err error) {
@@ -423,7 +423,7 @@ func (c *Client) UpdatePoolSettings(poolId string, name string, desc string) (er
 		"name": name,
 		"note": desc,
 	}
-        _, err = c.session.PostJSON(fmt.Sprintf("/ip/v3/ippool/%s", poolId), nil, nil, &rangeObject, nil)
+		_, err = c.session.PostJSON(fmt.Sprintf("/ip/v3/ippool/%s", poolId), nil, nil, &rangeObject, nil)
 	return
 }
 // Update network description
@@ -431,19 +431,19 @@ func (c *Client) UpdateNetworkDescription(id string, desc string) (err error) {
 	rangeObject := map[string]string {
 		"note": desc,
 	}
-        _, err = c.session.PostJSON(fmt.Sprintf("/vm/v3/ipnet/%s", id), nil, nil, &rangeObject, nil)
+		_, err = c.session.PostJSON(fmt.Sprintf("/vm/v3/ipnet/%s", id), nil, nil, &rangeObject, nil)
 	return
 }
 // Create new IPs range in Pool
 func (c *Client) CreatePoolRange(poolId string, rangestring string) (err error) {
-        var data map[string]interface{}
-        rangeObject := map[string]string {
+		var data map[string]interface{}
+		rangeObject := map[string]string {
 		"name": rangestring,
-        }
-        _, err = c.session.PostJSON(fmt.Sprintf("/vm/v3/ippool/%s/range", poolId), nil, nil, &rangeObject, &data)
-        if err != nil {
-                return err
-        }
+		}
+		_, err = c.session.PostJSON(fmt.Sprintf("/vm/v3/ippool/%s/range", poolId), nil, nil, &rangeObject, &data)
+		if err != nil {
+			return err
+		}
 	if data == nil {
 		return fmt.Errorf("Can't create Pool with params %v", rangeObject)
 	}
@@ -451,10 +451,10 @@ func (c *Client) CreatePoolRange(poolId string, rangestring string) (err error) 
 }
 // Delete range from pool
 func (c *Client) DeletePoolRange(rangeId int) (err error) {
-        _, err = c.session.DeleteJSON(fmt.Sprintf("/ip/v3/range/%d", rangeId), nil, nil, nil, nil)
-        if err != nil {
-                return err
-        }
+		_, err = c.session.DeleteJSON(fmt.Sprintf("/ip/v3/range/%d", rangeId), nil, nil, nil, nil)
+		if err != nil {
+			return err
+		}
 	return
 }
 // Get information about Pool
@@ -550,12 +550,12 @@ func (c *Client) GetAccountIdByEmail(email string) (id string, err error) {
 // Delete IPs pool
 func (c *Client) DeletePool(id string) (err error) {
 	url := fmt.Sprintf("/ip/v3/ippool/%s", id)
-        var data map[string]interface{}
+		var data map[string]interface{}
 
-        _, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't delete Pool %v", id)
 	}
@@ -564,22 +564,22 @@ func (c *Client) DeletePool(id string) (err error) {
 // Delete account
 func (c *Client) DeleteAccount(id string) (err error) {
 	url := fmt.Sprintf("/vm/v3/user/%s", id)
-        var data map[string]interface{}
+		var data map[string]interface{}
 
-        _, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't delete account %v", id)
 	}
-        return
+		return
 }
 // Change account role
 func (c *Client) ChangeAccountRole(id string, role string) (err error) {
 	url := fmt.Sprintf("/vm/v3/user/%v", id)
 	config := map[string][]string{"roles": { role }}
-        _, err = c.session.PostJSON(url, nil, nil, &config, nil)
+		_, err = c.session.PostJSON(url, nil, nil, &config, nil)
 	return
 }
 // Add ssh public key to account
@@ -589,14 +589,14 @@ func (c *Client) AccountAddSshKey(id string, key SshKeyConfig) (err error) {
 		"name": key.Name,
 		"ssh_pub_key": key.Key,
 	}
-        _, err = c.session.PostJSON(url, nil, nil, &config, nil)
+		_, err = c.session.PostJSON(url, nil, nil, &config, nil)
 	return
 }
-// Get set of ssh public keys from account 
+// Get set of ssh public keys from account
 func (c *Client) AccountGetSshKeys(id string) (ssh_keys []interface{}, err error) {
 	var data map[string]interface{}
 	url := fmt.Sprintf("/auth/v3/user/%v/sshkey", id)
-        err = c.GetJsonRetryable(url, &data, 3)
+		err = c.GetJsonRetryable(url, &data, 3)
 	if err != nil {
 		return nil, err
 	}
@@ -609,10 +609,10 @@ func (c *Client) AccountGetSshKeys(id string) (ssh_keys []interface{}, err error
 // Add VxLAN network to some account
 func (c *Client) AccountAddVxLAN(config ConfigNewVxLAN) (id string, err error) {
 	var data map[string]interface{}
-        _, err = c.session.PostJSON("/vm/v3/vxlan", nil, nil, &config, &data)
+		_, err = c.session.PostJSON("/vm/v3/vxlan", nil, nil, &config, &data)
 	if err != nil {
-                return "", err
-        }
+		return "", err
+	}
 	if data == nil {
 		return "", fmt.Errorf("Can't create VxLAN with params %#v", config)
 	}
@@ -635,16 +635,16 @@ func (c *Client) GetVxLANInfo(id string) (config map[string]interface{}, err err
 // Delete VxLAN
 func (c *Client) DeleteVxLAN(id string) (err error) {
 	url := fmt.Sprintf("/vm/v3/vxlan/%s", id)
-        var data map[string]interface{}
+		var data map[string]interface{}
 
-        _, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
-        if err != nil {
-                return
-        }
+		_, err = c.session.DeleteJSON(url, nil, nil, nil, &data)
+		if err != nil {
+			return
+		}
 	if data == nil {
 		return fmt.Errorf("Can't delete VxLAN %v", id)
 	}
-        return
+		return
 }
 // Find VxLAN by name and account
 func (c *Client) GetVxLANIdByName(account int, name string) (id string, err error) {

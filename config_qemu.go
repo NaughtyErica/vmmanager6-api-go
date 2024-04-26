@@ -7,38 +7,38 @@ import (
 )
 
 type ConfigDisk struct {
-	Size		int	    `json:"disk_mib"`
-	Id		int	    `json:"id"`
+	Size		int		`json:"disk_mib"`
+	Id			int		`json:"id"`
 }
 type ClusterConfig struct {
-	Id		int	    `json:"id"`
-	DatacenterType  string	    `json:"datacenter_type"`
-	Name		string	    `json:"name"`
-	Type		string	    `json:"virtualization_type"`
+	Id				int			`json:"id"`
+	DatacenterType  string		`json:"datacenter_type"`
+	Name			string		`json:"name"`
+	Type			string		`json:"virtualization_type"`
 }
 type NodeConfig struct {
-	Id		int	    `json:"id"`
-	Name		string	    `json:"name"`
+	Id				int			`json:"id"`
+	Name			string		`json:"name"`
 }
 type AccountConfig struct {
-	Email		string	    `json:"email"`
-	Id		int	    `json:"id"`
+	Email			string		`json:"email"`
+	Id				int			`json:"id"`
 }
 type OsConfig struct {
-	Id		int	    `json:"id"`
+	Id				int			`json:"id"`
 }
 type IpConfig struct {
-	Domain		string		`json:"domain"`
-	Family		int 		`json:"family"`
-	Gateway 	string		`json:"gateway"`
-	Id  		int 		`json:"id"`
-	Addr 		string		`json:"ip_addr"`
-	Mask	 	string		`json:"mask"`
-	NetId		int 		`json:"network"`
+	Domain			string		`json:"domain"`
+	Family			int			`json:"family"`
+	Gateway 		string		`json:"gateway"`
+	Id  			int			`json:"id"`
+	Addr 			string		`json:"ip_addr"`
+	Mask	 		string		`json:"mask"`
+	NetId			int			`json:"network"`
 }
 type Ipv4Config struct {
 	Interface	string	    `json:"interface"`
-	Ip		string	    `json:"ip"`
+	Ip				string	    `json:"ip"`
 }
 type RecipeParamsConfig struct {
 	Name		string		`json:"name"`
